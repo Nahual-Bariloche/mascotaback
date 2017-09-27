@@ -9,9 +9,9 @@ router.get('/', (req, res, next) => {
 });
 
 /* Agregar una mascota */
-router.post('/', (req, res, next) => {
+router.post('/', (req, res) => {
   // mandar req.body a la base
-  res.status(201);
+  res.send();
 });
 
 module.exports = router;
