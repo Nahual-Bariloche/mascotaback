@@ -11,13 +11,21 @@ router.get('/', (req, res, next) => {
 /* Agregar una mascota */
 router.post('/', (req, res) => {
   // mandar req.body a la base
-  res.send('foo');
+  res.send(req.body);
 });
 
 router.put('/:id', (req, res) => {
   // mandar req.body a la base
-  let id = req.id;
-  res.jsonp({ id: id });
+  let id = req.params.id;
+  let response = { id: id, message: `Registro ${id} actualizado` };
+  res.json(response);
+});
+
+router.delete('/:id', (req, res) => {
+  // mandar req.body a la base
+  let id = req.params.id;
+  let response = { id: id, message: `Registro ${id} borrado` };
+  res.json(response);
 });
 
 module.exports = router;
