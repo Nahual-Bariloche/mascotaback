@@ -18,7 +18,6 @@ AWS.config.update({
 });
 
 let docClient = new AWS.DynamoDB.DocumentClient();
-
 let table = 'Mascota';
 
 //let bucketArn = 'arn:aws:s3:::elasticbeanstalk-us-east-1-533832295765';
@@ -29,6 +28,13 @@ let table = 'Mascota';
 //     params: {Bucket: bucketName}
 // });
 
+let guid = () => {
+    let pad8 = (s) => {
+        let p = (Math.random().toString(16) + '000000000').substr(2, 8);
+        return s ? '-' + p.substr(0, 4) + '-' + p.substr(4, 4) : p;
+    };
+    return (pad8() + pad8(true) + pad8(true) + new Date().toISOString().slice(0, 10)).replace(/-/g, '');
+};
 
 /* Obtener listado de mascotas */
 router.get('/', (req, res) => {
@@ -46,31 +52,36 @@ router.get('/', (req, res) => {
             res.json(data.Items);
         }
     });
-
 });
-
 
 /* Agregar una mascota */
 router.post('/', (req, res) => {
+
+    let newItem = req.body;
+    newItem.id = guid();
+    // mandar req.body a la base
     let params = {
-        TableName:table,
-        Item: req.body
+        TableName: table, Item: newItem
     };
 
+    console.log('Adding a new item...');
     docClient.put(params, (err, data) => {
         if (err) {
+            console.error('Unable to add item. Error JSON:', JSON.stringify(err, null, 2));
             res.send(err);
         } else {
-            res.send(data);
+            console.log('Added item:', JSON.stringify(data, null, 2));
+            res.send(newItem);
         }
     });
+
 });
 
 /* Actualizar una mascota */
 router.put('/:id', (req, res) => {
     // mandar req.body a la base
     let id = req.params.id;
-    let response = { id: id, message: `Registro ${id} actualizado` };
+    let response = {id: id, message: `Registro ${id} actualizado`};
     res.json(response);
 });
 
@@ -78,7 +89,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
     // mandar req.body a la base
     let id = req.params.id;
-    let response = { id: id, message: `Registro ${id} borrado` };
+    let response = {id: id, message: `Registro ${id} borrado`};
     res.json(response);
 });
 
