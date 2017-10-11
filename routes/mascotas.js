@@ -17,7 +17,7 @@ AWS.config.update({
     secretAccessKey: config.secretAccessKey
 });
 
-let docClient = new AWS.DynamoDB.DocumentClient();
+let docClient = new AWS.DynamoDB.DocumentClient({ convertEmptyValues: true });
 let table = 'Mascota';
 
 //let bucketArn = 'arn:aws:s3:::elasticbeanstalk-us-east-1-533832295765';
@@ -58,8 +58,12 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
 
     let newItem = req.body;
-    newItem.id = guid();
-    // mandar req.body a la base
+    // Object.keys(req.body).forEach((key) => {
+    //     newItem = JSON.parse(key);
+    // });
+
+    //newItem.id = guid();
+
     let params = {
         TableName: table, Item: newItem
     };
@@ -94,25 +98,28 @@ router.delete('/:id', (req, res) => {
 });
 
 router.post('/upload/:id', function(req, res) {
-    if (!req.files)
-        return res.status(400).send('No files were uploaded.');
 
-    let id = req.params.id;
+    return res.send(req);
 
-    // s3.upload({
-    //     Key: id,
-    //     Body: file,
-    //     ACL: 'public-read'
-    // }, function(err, data) {
-    //     if (err) {
-    //         res.json(err);
-    //     }
-    //     else {
-    //         res.json(data);
-    //     }
-    // });
+    // if (!req.files)
+    //     return res.status(400).send('No files were uploaded.');
 
-    res.json({ result: id});
+    // let id = req.params.id;
+
+    // // s3.upload({
+    // //     Key: id,
+    // //     Body: file,
+    // //     ACL: 'public-read'
+    // // }, function(err, data) {
+    // //     if (err) {
+    // //         res.json(err);
+    // //     }
+    // //     else {
+    // //         res.json(data);
+    // //     }
+    // // });
+
+    // res.json({ result: id});
 });
 
 module.exports = router;
