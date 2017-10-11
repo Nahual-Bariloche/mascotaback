@@ -67,3 +67,4 @@ typings/
 
 !.elasticbeanstalk/*.global.yml
 
+/config.js
