@@ -100,6 +100,26 @@ router.get('/perdidas', (req, res) => {
     });
 });
 
+/* Obtener una mascota*/
+router.get('/:id', (req, res) => {
+
+    let params = {
+        TableName: table,
+        Key:{
+            id: req.params.id
+        }
+    };
+
+    docClient.get(params, (err, data) => {
+        if (err) {
+            console.error('Unable to get the item. Error JSON:', JSON.stringify(err, null, 2));
+            res.json(err);
+        } else {
+            console.log('Get item succeeded.');
+            res.json(data.Item);
+        }
+    });
+});
 
 /* Agregar una mascota */
 router.post('/', (req, res) => {
@@ -108,7 +128,8 @@ router.post('/', (req, res) => {
     newItem.id = guid();
 
     let params = {
-        TableName: table, Item: newItem
+        TableName: table,
+        Item: newItem
     };
 
     console.log('Adding a new item...');
