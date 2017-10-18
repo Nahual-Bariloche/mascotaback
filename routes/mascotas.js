@@ -18,7 +18,7 @@ AWS.config.update({
 });
 
 let docClient = new AWS.DynamoDB.DocumentClient({ convertEmptyValues: true });
-let table = 'Mascota';
+let table = 'Mascotas';
 
 //let bucketArn = 'arn:aws:s3:::elasticbeanstalk-us-east-1-533832295765';
 // let bucketName = 'elasticbeanstalk-us-east-1-533832295765';
@@ -54,15 +54,58 @@ router.get('/', (req, res) => {
     });
 });
 
+/* Obtener listado de mascotas encontradas*/
+router.get('/encontradas', (req, res) => {
+
+    let params = {
+        TableName: table,
+        ProjectionExpression: 'fecha_extraviado, raza, color, email',
+        FilterExpression: 'busqueda = :busq',
+        ExpressionAttributeValues: {
+            ':busq': false
+        }
+    };
+
+    docClient.scan(params, (err, data) => {
+        if (err) {
+            console.error('Unable to scan the table. Error JSON:', JSON.stringify(err, null, 2));
+            res.json(err);
+        } else {
+            console.log('Scan succeeded.');
+            res.json(data.Items);
+        }
+    });
+});
+
+/* Obtener listado de mascotas encontradas*/
+router.get('/perdidas', (req, res) => {
+
+    let params = {
+        TableName: table,
+        ProjectionExpression: 'fecha_extraviado, raza, color, email',
+        FilterExpression: 'busqueda = :busq',
+        ExpressionAttributeValues: {
+            ':busq': true
+        }
+    };
+
+    docClient.scan(params, (err, data) => {
+        if (err) {
+            console.error('Unable to scan the table. Error JSON:', JSON.stringify(err, null, 2));
+            res.json(err);
+        } else {
+            console.log('Scan succeeded.');
+            res.json(data.Items);
+        }
+    });
+});
+
+
 /* Agregar una mascota */
 router.post('/', (req, res) => {
 
     let newItem = req.body;
-    // Object.keys(req.body).forEach((key) => {
-    //     newItem = JSON.parse(key);
-    // });
-
-    //newItem.id = guid();
+    newItem.id = guid();
 
     let params = {
         TableName: table, Item: newItem
@@ -99,7 +142,7 @@ router.delete('/:id', (req, res) => {
 
 router.post('/upload/:id', function(req, res) {
 
-    return res.send(req);
+    return res.send({ body: req.body, params: req.params, files: req.files });
 
     // if (!req.files)
     //     return res.status(400).send('No files were uploaded.');
