@@ -203,12 +203,13 @@ router.post('/upload/:id', function(req, res) {
 
 
     let id = req.params.id;
-
-    s3.upload({
+    let params = {
         Key: 'imagenes/' + id,
         Body: image,
         ACL: 'public-read'
-    }, function(err, data) {
+    };
+
+    s3.upload(params, (err, data) => {
         if (err) {
             res.json(err);
         }
