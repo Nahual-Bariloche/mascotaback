@@ -4,29 +4,40 @@ let config = require('../config');
 let router = express.Router();
 
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: 'us-east-1:c520d5fc-4aa5-4ec1-bd6f-b29bca765720',
-    RoleArn: 'arn:aws:iam::533832295765:role/Cognito_DynamoPoolUnauth'
+    IdentityPoolId: 'us-east-1_UrF1N8JqK',
+    RoleArn: 'arn:aws:cognito-idp:us-east-1:533832295765:userpool/us-east-1_UrF1N8JqK'
 }, {
     region: 'us-east-1'
 });
 
 AWS.config.update({
     region: 'us-east-1',
+    //endpoint: 'https://dynamodb.us-east-1.amazonaws.com',
+    accessKeyId: config.accessKeyId,
+    secretAccessKey: config.secretAccessKey
+});
+
+let dynamoDb = new AWS.DynamoDB({
+    region: 'us-east-1',
     endpoint: 'https://dynamodb.us-east-1.amazonaws.com',
     accessKeyId: config.accessKeyId,
     secretAccessKey: config.secretAccessKey
 });
 
-let docClient = new AWS.DynamoDB.DocumentClient({ convertEmptyValues: true });
+let docClient = new AWS.DynamoDB.DocumentClient({ service: dynamoDb, convertEmptyValues: true });
 let table = 'Mascotas';
 
-//let bucketArn = 'arn:aws:s3:::elasticbeanstalk-us-east-1-533832295765';
-// let bucketName = 'elasticbeanstalk-us-east-1-533832295765';
+// let bucketArn = 'arn:aws:s3:::elasticbeanstalk-us-east-1-533832295765';
+let bucketName = 'elasticbeanstalk-us-east-1-533832295765';
 
-// let s3 = new AWS.S3({
-//     apiVersion: '2006-03-01',
-//     params: {Bucket: bucketName}
-// });
+let s3 = new AWS.S3({
+    apiVersion: '2006-03-01',
+    region: 'us-east-1',
+    params: {Bucket: bucketName},
+    accessKeyId: config.accessKeyId,
+    secretAccessKey: config.secretAccessKey,
+    Delimiter: '/',
+});
 
 let guid = () => {
     let pad8 = (s) => {
@@ -42,7 +53,6 @@ router.get('/', (req, res) => {
     let params = {
         TableName: table
     };
-
     docClient.scan(params, (err, data) => {
         if (err) {
             console.error('Unable to scan the table. Error JSON:', JSON.stringify(err, null, 2));
@@ -121,6 +131,29 @@ router.get('/:id', (req, res) => {
     });
 });
 
+/* Obtener listado de imagenes*/
+router.get('/imagenes', (req, res) => {
+
+    console.log('hola');
+
+    let params = {
+        Bucket: 'elasticbeanstalk-us-east-1-533832295765',
+        Delimiter: '',
+        Prefix: 'imagenes/'
+    };
+
+    s3.listObjects(params, (err, data) => {
+        if (err) {
+            console.log('Error', err);
+            res.json(err);
+        } else {
+            console.log('Success', data);
+            res.json(data);
+        }
+    });
+
+});
+
 /* Agregar una mascota */
 router.post('/', (req, res) => {
 
@@ -163,27 +196,26 @@ router.delete('/:id', (req, res) => {
 
 router.post('/upload/:id', function(req, res) {
 
-    return res.send({ body: req.body, params: req.params, files: req.files });
+    let image;
+    req.body.keys.forEach(function(key) {
+        image = key;
+    }, this);
 
-    // if (!req.files)
-    //     return res.status(400).send('No files were uploaded.');
 
-    // let id = req.params.id;
+    let id = req.params.id;
 
-    // // s3.upload({
-    // //     Key: id,
-    // //     Body: file,
-    // //     ACL: 'public-read'
-    // // }, function(err, data) {
-    // //     if (err) {
-    // //         res.json(err);
-    // //     }
-    // //     else {
-    // //         res.json(data);
-    // //     }
-    // // });
-
-    // res.json({ result: id});
+    s3.upload({
+        Key: 'imagenes/' + id,
+        Body: image,
+        ACL: 'public-read'
+    }, function(err, data) {
+        if (err) {
+            res.json(err);
+        }
+        else {
+            res.json(data);
+        }
+    });
 });
 
 module.exports = router;
