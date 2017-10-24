@@ -69,7 +69,7 @@ router.get('/encontradas', (req, res) => {
 
     let params = {
         TableName: table,
-        ProjectionExpression: 'fecha_extraviado, raza, color, email',
+        ProjectionExpression: 'id, fecha_extraviado, raza, color, email',
         FilterExpression: 'busqueda = :busq',
         ExpressionAttributeValues: {
             ':busq': false
@@ -92,7 +92,7 @@ router.get('/perdidas', (req, res) => {
 
     let params = {
         TableName: table,
-        ProjectionExpression: 'fecha_extraviado, raza, color, email',
+        ProjectionExpression: 'id, fecha_extraviado, raza, color, email',
         FilterExpression: 'busqueda = :busq',
         ExpressionAttributeValues: {
             ':busq': true
@@ -197,10 +197,9 @@ router.delete('/:id', (req, res) => {
 router.post('/upload/:id', function(req, res) {
 
     let image;
-    req.body.keys.forEach(function(key) {
+    for (var key in req.body) {
         image = key;
-    }, this);
-
+    }
 
     let id = req.params.id;
     let params = {
