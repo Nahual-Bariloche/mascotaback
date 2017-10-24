@@ -7,6 +7,13 @@
 var app = require('../app');
 var debug = require('debug')('mascotaback:server');
 var http = require('http');
+var bodyParser = require('body-parser');
+
+// ...
+
+app.use(bodyParser.json({limit: '20mb'}));
+app.use(bodyParser.urlencoded({limit: '20mb'}));
+
 
 /**
  * Get port from environment and store in Express.
