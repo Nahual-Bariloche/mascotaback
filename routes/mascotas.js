@@ -218,4 +218,8 @@ router.post('/upload/:id', function(req, res) {
     });
 });
 
+router.post('/testupload/:id', function(req, res) {
+    res.json({ body: req.body, params: req.params, files: req.files });
+});
+
 module.exports = router;
