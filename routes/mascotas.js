@@ -194,23 +194,19 @@ router.delete('/:id', (req, res) => {
     res.json(response);
 });
 
+/* Subir una imagen */
 router.post('/upload/:id', function(req, res) {
-
-    let image;
-    for (var key in req.body) {
-        image = key;
-    }
-
+    let ext = req.query.extension;
     let id = req.params.id;
     let params = {
-        Key: 'imagenes/' + id,
-        Body: image,
+        Key: 'imagenes/' + id + '.' + ext,
+        Body: req.body,
         ACL: 'public-read'
     };
 
     s3.upload(params, (err, data) => {
         if (err) {
-            res.json(err);
+            res.json({ error: err, data: req.body.data, ext: req.query.extension });
         }
         else {
             res.json(data);
@@ -219,7 +215,7 @@ router.post('/upload/:id', function(req, res) {
 });
 
 router.post('/testupload/:id', function(req, res) {
-    res.json({ body: req.body, params: req.params, files: req.files });
+    res.json({ body: req.body, params: req.params, files: req.files, query: req.query });
 });
 
 module.exports = router;

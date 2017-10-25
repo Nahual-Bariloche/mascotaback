@@ -20,6 +20,13 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+var options = {
+    inflate: true,
+    limit: '10000kb',
+    type: 'application/octet-stream'
+};
+app.use(bodyParser.raw(options));
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
