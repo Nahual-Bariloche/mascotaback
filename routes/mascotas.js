@@ -69,7 +69,7 @@ router.get('/encontradas', (req, res) => {
 
     let params = {
         TableName: table,
-        ProjectionExpression: 'id, fecha_extraviado, raza, color, email',
+        ProjectionExpression: 'id, fecha_extraviado, raza, color, email, nombre',
         FilterExpression: 'busqueda = :busq',
         ExpressionAttributeValues: {
             ':busq': false
@@ -92,7 +92,7 @@ router.get('/perdidas', (req, res) => {
 
     let params = {
         TableName: table,
-        ProjectionExpression: 'id, fecha_extraviado, raza, color, email',
+        ProjectionExpression: 'id, fecha_extraviado, raza, color, email, nombre',
         FilterExpression: 'busqueda = :busq',
         ExpressionAttributeValues: {
             ':busq': true
